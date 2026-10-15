@@ -3,6 +3,7 @@ import pandas as pd
 import scanpy as sc
 import matplotlib.pyplot as plt
 import sys
+import os
 import seaborn as sns
 
 # Argument parsing
@@ -12,6 +13,7 @@ if len(sys.argv) != 4:
 
 input_file = sys.argv[1]
 figures_dir = sys.argv[2]
+os.makedirs(figures_dir, exist_ok=True)
 output_file = sys.argv[3]
 sc.settings.verbosity = 3  # verbosity: errors (0), warnings (1), info (2), hints (3)
 sc.settings.set_figure_params(dpi=80, color_map='viridis')
@@ -42,8 +44,8 @@ plt.close()
 
 # Normalize
 sc.pp.normalize_per_cell(adata, counts_per_cell_after=1e4)
-adata.raw = sc.pp.log1p(adata, copy=True)
 sc.pp.log1p(adata)
+adata.raw = adata.copy()
 
 # Select highly variable genes
 sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=4, min_disp=0.5, flavor='seurat')
@@ -51,7 +53,7 @@ adata = adata[:, adata.var['highly_variable']]
 
 # Scale and PCA
 sc.pp.scale(adata, max_value=10)
-sc.tl.pca(adata, svd_solver='arpack', n_comps=50)
+sc.tl.pca(adata, svd_solver='arpack', n_comps=min(50, adata.n_obs - 1, adata.n_vars - 1))
 adata.obsm['X_pca'] *= -1
 
 variance = adata.uns['pca']['variance']
