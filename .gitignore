@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.h5ad
+*.h5
+*.mtx
+qc_figures/
+*.png
+*.svg
+/data/
