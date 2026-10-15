@@ -8,7 +8,7 @@ import seaborn as sns
 
 # Check command-line arguments
 if len(sys.argv) != 3:
-    print("Usage: python qc_processing.py <input_matrix.csv> <metadata.csv>")
+    print("Usage: python preprocessing_worm.py <input_matrix.csv> <metadata.csv>")
     sys.exit(1)
 
 # Read input paths from arguments
@@ -34,8 +34,15 @@ adata.var_names_make_unique()
 # 3. Load and align metadata
 meta = pd.read_csv(metadata_file).set_index("sampleID")
 common = adata.obs_names.intersection(meta.index)
-adata = adata[common]
-adata.obs = meta.loc[common]
+adata = adata[common].copy()
+adata.obs = meta.loc[common].copy()
+if "group" not in adata.obs and "variant" in adata.obs:
+    adata.obs["group"] = adata.obs["variant"].astype(str)
+if "variant" not in adata.obs and "group" in adata.obs:
+    adata.obs["variant"] = adata.obs["group"].astype(str)
+if "variant" not in adata.obs or "group" not in adata.obs:
+    raise ValueError("Metadata must contain a group or variant column specifying RNAi perturbation labels.")
+adata.obs["variant"] = adata.obs["variant"].astype("category")
 
 # 4. Compute QC metrics: total counts and number of genes detected per cell
 adata.obs["n_counts"] = adata.X.sum(axis=1)
