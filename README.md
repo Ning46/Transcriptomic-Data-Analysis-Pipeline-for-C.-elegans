@@ -30,6 +30,3 @@ This is a **code archive**, not a verified end-to-end executable pipeline. The s
 
 GEO accession: [GSE255865](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE255865).
 
-## Attribution
-
-Originally developed as part of a collaborative university design project. Please retain appropriate credit to all contributors when publishing or reusing the code. The original project's licensing and contributor permissions should be checked before public release.
