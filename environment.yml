@@ -1,0 +1,12 @@
+name: worm-rnai
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - scanpy
+  - pandas
+  - numpy
+  - scipy
+  - matplotlib
+  - seaborn
