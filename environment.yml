@@ -1,12 +1,13 @@
 name: worm-rnai
 channels:
   - conda-forge
-  - bioconda
 dependencies:
-  - python=3.11
-  - scanpy
+  - python=3.10
   - pandas
   - numpy
   - scipy
+  - scanpy
+  - anndata
   - matplotlib
   - seaborn
+  - spm1d
