@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import re
 from scipy.spatial.distance import pdist
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
-import spm1d
+
 
 # Check command-line arguments
 if len(sys.argv) != 3:
@@ -29,18 +29,24 @@ def compute_pseudo_bulk(adata, group_key='group'):
     pseudo_bulk = expr_df.groupby(group_key).mean()  # Aggregate gene expression by group
     return pseudo_bulk
 
+if "group" not in adata.obs:
+    raise ValueError("AnnData metadata must contain a group column.")
 pseudo_bulk = compute_pseudo_bulk(adata, group_key="group")
 pseudo_bulk.to_csv("bulk_expression_matrix.csv")   # Save pseudo-bulk expression data
 print("Pseudo-bulk expression matrix saved.")
 
 # Correlation and clustering
 bulk_corr = pseudo_bulk.T.corr(method='spearman')
+if len(bulk_corr) < 2:
+    raise ValueError('At least two perturbation groups are required for clustering.')
 dist_mat = pdist(bulk_corr, metric='cityblock')
 linkage_matrix = linkage(dist_mat, method='complete')
 
 # Load Hotelling T² results
 hotelling = pd.read_csv(hotelling_path, index_col=0)
-hotelling["score"] = pd.to_numeric(hotelling["HotellingT2"], errors='coerce')
+if "HotellingT2" not in hotelling:
+    raise ValueError("Scoring CSV must contain a HotellingT2 column.")
+hotelling["score"] = pd.to_numeric(hotelling["HotellingT2"], errors="coerce")
 
 # Get dendrogram order
 ddata = dendrogram(linkage_matrix, no_plot=True, labels=bulk_corr.index.tolist())
